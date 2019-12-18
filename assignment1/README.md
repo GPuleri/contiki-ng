@@ -28,24 +28,26 @@ In the last one, we will analyze range capabilities.
 
 We consider the directory `assignment1` as the base directory.
 As mentioned before, there are three folders called respectively `assignment1_N`, with N from 2 to 4, present into the base directory. 
-All these folders are hierarchically composed by the same files:
+All these folders are hierarchically composed by the same two sub-directories, two folders and two files:
 
 * `assignment1_N`
-  
-  * `Makefile`
-  
+  * `LEAF`
+  * `ROOT`
+  * `plots`
+  * `scripts`
+  * `data.zip`
   * `README.md`
 
-  * `project-conf.h`
+Each of these sub-directories contain the following files:
+
+* `Makefile`
+
+* `project-conf.h`
+
+* `assignment1_N.c`
+
   
-  * `assignment1_N.c`
-  
-  * `plots`
-  
-  * `data`
-  
-    
-  
+
 
 ## Setup the environment
 

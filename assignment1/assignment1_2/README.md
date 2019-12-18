@@ -24,18 +24,24 @@ For all analyses, we will use the default network stack settings configured by C
 
 ## Directories description
 
-Inside of the base directory `assignment1_2` there are two folders and two files:
+Inside of the base directory `assignment1_2` there are two sub-projects, two folders and two files:
 * `6TiSCH_stack`, this sub-project contains the files needed for the analysis of the entire 6TiSCH stack.
 * `TSCH_MAC_layer`, this sub-project contains the files needed for the analysis of the TSCH MAC layer.
-* `plots.xlsx`, this file contains the various plots obtained after the analysis.
+* `plots`, this folder contains the various plots obtained by the scripts.
+* `scripts`, this folder contains the various scripts used to obtain the plots.
 * `README.md`, this file contains information about other files in the sub-directories.
+* `data.zip`, this file contains the data used for the plots.
 
-Each of these sub-projects contain the following files:
+Each of these sub-projects contain the following sub-directories:
+
+* `LEAF`, this directory contains all the files needed to run the leaf node.
+* `ROOT`, this directory contains all the files needed to run the root node.
+
+Each of these sub-directories contain the following files:
 
 * `Makefile`, this file contains a set of directives used by a make build automation tool to generate a target/goal. This Makefile can define the MODULES variable, a list of modules that should be included. It can also configure the Contiki-NG networking stack.
 * `project-conf.h`, this file contains C declarations and macro definitions. It is used to configure the develop environment, the system configuration and the various layers of the stack.
 * `assignment1_2.c`, this file contains the class that is meant to be run.
-* `data.zip`, this file that contains the data used for the plots.
 
 
 
@@ -53,6 +59,7 @@ You must be under /home/*user*/contiki-ng in the container, which is mapped to y
 
 Sometimes it is useful to have multiple terminal sessions within a single container. 
 To achieve this, open a new terminal and start by running:
+
 ```bash
 $ docker ps
 ```
@@ -62,7 +69,6 @@ $ docker exec -it <the ID> /bin/bash
 ```
 Now we have two terminal sessions within a single container.
 
-In base of which sub-project you want to run 
 In both terminal session we will move to the specific sub-project (in base of which of them we want to run) simply typing:
 
 ```bash
@@ -73,10 +79,26 @@ or
 cd assignment1/assignment1_2/TSCH_MAC_layer
 ```
 
-Now, only in one terminal session, it is useful saves our settings and after compile the project (nodes can be something like *'/dev/ttyUSB0'* or *'/dev/ttyUSB1'*):
+
+At this point, we will move in the first terminal session to the root node simply tiping:
+
+```bash
+cd ROOT
+```
+
+and in the second terminal session to the leaf node:
+
+```bash
+cd LEAF
+```
+
+
+
+Now, in every terminal session, it is useful saves our settings and after compile the project (nodes can be something like *'/dev/ttyUSB0'* or *'/dev/ttyUSB1'*):
+
 ```bash
 make TARGET=zoul BOARD=firefly savetarget
-make MOTES='<1st node> <2nd node>' assignment1_2.upload
+make MOTES='<1st node>' or '<2nd node>' assignment1_2.upload
 ```
 
 
@@ -94,42 +116,56 @@ make MOTES=<2nd node> login
 ```
 for the second terminal session.
 
-- ##### 6TiSCH_stack
 
-  From the shell, you can run TSCH transparently with RPL:
 
-  ```
-  > rpl-set-root 1
-  Setting as DAG root with prefix fd00::/64
-  ```
+### How to run the scripts
 
-  Note than whenever a node is set as RPL root, it will automatically become a TSCH coordinator.
+Here we have 4 files:
 
-- ##### TSCH_MAC_layer
+* `energy.py`, this script is meant to retrieve data from the .txt files and convert them into a .csv files.
+* `average.py`, this script is meant to make the average among the three .csv files.
+* `plot.py`, this script is meant to draw the graphs.
+* `plotComparison.py`, this script is meant to draw the graphs to compare root/leaf with different configurations.
 
-  From the shell, set one node as TSCH coordinator:
+#### energy.py
 
-  ```
-  > tsch-set-coordinator 1
-  Setting as TSCH coordinator (non-secured)
-  ```
-
-  The node will create a TSCH network and start advertising it through Enhanced Beacons (EBs). 
-  The other node should be scanning on all active channels. Once it receives an EB, it should join the network.
-
-  
-
-On the other node, type `tsch-status` to check if the node has joined the network yet:
-
+For all the .txt files:
+```bash
+python3 energy.py <txt file> <csv file>
 ```
-> tsch-status
-TSCH status:
--- Is coordinator: 0
--- Is associated: 1
--- PAN ID: 0xabcd
--- Is PAN secured: 0
--- Join priority: 1
--- Time source: 0012.4b00.1932.e30b
--- Last synchronized: 3 seconds ago
--- Drift w.r.t. coordinator: 4 ppm
+For instance:
+```bash
+python3 energy.py ../data/leaf1.txt ../data/leaf1.csv
 ```
+
+#### average.py
+
+For all the .csv files (of the same configuration):
+```bash
+python3 average.py <1st csv file> <2nd csv file> <3rd csv file> <final csv file>
+```
+For instance:
+```bash
+python3 average.py ../data/leaf1.csv ../data/leaf2.csv ../data/leaf3.csv ../data/leaf.csv
+```
+
+#### plot.py
+
+```bash
+python3 plot.py <root csv file> <leaf csv file> <png file>
+```
+For instance:
+```bash
+python3 plot.py ../data/root.csv ../data/leaf.csv ../plots/energy.png
+```
+
+#### plotComparison.py
+
+```bash
+python3 plotComparison.py <root csv file> <root TSCH csv file> <png file>
+```
+For instance:
+```bash
+python3 plotComparison.py ../data/root.csv ../data/rootTSCH.csv ../plots/rootComparison.png
+```
+
